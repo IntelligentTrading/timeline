@@ -115,18 +115,6 @@ export default {
       contextualItems: []
     };
   },
-  sockets: {
-    connect() {
-      console.log("Connected");
-      this.$socket.emit(
-        "subscribe",
-        Math.floor(Math.random() * Math.floor(9999))
-      );
-    },
-    signal: function(data) {
-      console.log({ data });
-    }
-  },
   computed: {
     ...mapGetters([
       "groups",

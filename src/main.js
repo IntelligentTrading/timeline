@@ -6,13 +6,7 @@ import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import store from './store/index'
-import VueSocketIO from 'vue-socket.io'
  
-Vue.use(new VueSocketIO({
-    debug: true,
-    connection: 'http://localhost:80',
-}))
-
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 
