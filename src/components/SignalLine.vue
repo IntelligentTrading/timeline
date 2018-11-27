@@ -204,7 +204,7 @@ export default {
       this.loading = true;
       return Promise.all([
         this.getHistory({
-          ticker: this.ticker,
+          ticker: this.ticker.toUpperCase(),
           horizon: this.horizon,
           source: this.source,
           counterCurrency: this.counterCurrency
