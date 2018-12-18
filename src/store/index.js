@@ -15,7 +15,9 @@ export default new Vuex.Store({
         sources: ['POLONIEX', 'BITTREX', 'BINANCE'],
         counterCurrencies: ['BTC', 'ETH', 'USDT', 'XMR'],
         signalTypes: ['ANN_Simple', 'RSI', "RSI_Cumulative", 'SMA', 'kumo_breakout', 'ANN_AnomalyPrc', "VBI"],
-        telegram_chat_id: ''
+        telegram_chat_id: '',
+        topCoins: {},
+        selectedSignals: []
     },
     mutations: {
         addGroup(state, group) {
@@ -27,6 +29,31 @@ export default new Vuex.Store({
         setTelegramChatId(state, telegram_chat_id) {
             console.log(telegram_chat_id)
             state.telegram_chat_id = telegram_chat_id
+        },
+        setTopCoins(state, coins) {
+            state.topCoins = coins
+        },
+        setSelectedSignals(state, signals) {
+            state.selectedSignals = signals
+        },
+        setCurrentSelection(state, { points, range, history }) {
+
+            if (!range.min) range.min = Number.NEGATIVE_INFINITY;
+            if (!range.max) range.max = Number.POSITIVE_INFINITY;
+
+            let eventPoints = points
+                .filter(point => {
+                    return point.x > range.min && point.x < range.max;
+                })
+                .map(eventPoint => {
+                    return parseInt(eventPoint.label.text);
+                });
+
+            let selectedPoints = history.filter(h => {
+                return eventPoints.includes(h.id);
+            });
+
+            state.selectedSignals = selectedPoints
         }
     },
     getters: {
@@ -50,6 +77,9 @@ export default new Vuex.Store({
         },
         prices(state) {
             return state.prices
+        },
+        selectedSignals(state) {
+            return state.selectedSignals
         },
         timelineGroups(state) {
             return state.groups.map(g => {
@@ -92,6 +122,9 @@ export default new Vuex.Store({
             });
 
             return _.flatten(items)
+        },
+        topCoins(state) {
+            return state.topCoins
         }
     },
     actions: {
@@ -113,43 +146,16 @@ export default new Vuex.Store({
                 return context.commit('addGroup', { id: ticker, h: horizon, s: source, cc: counterCurrency, items: items })
             })
         },
-        async getHistoryPrice(context, { ticker, source, counterCurrency }) {
-            /*{
-                "source": 2,
-                "transaction_currency": "EOS",
-                "counter_currency": 0,
-                "timestamp": "2018-11-02T08:23:24.174000",
-                "open_p": 82270,
-                "high": 83090,
-                "low": 81870,
-                "close": 82780,
-                "volume": 989443.81
-            }*/
-            console.log(`Loading history prices for ${ticker} ${source} ${counterCurrency}`)
-            return api.getHistoryPrices(ticker, source, counterCurrency).then(history => {
-                console.log(history)
-                var items = history.results.map(result => {
-                    return {
-                        timestamp: result.timestamp,
-                        price: result.close,
-                    }
-                })
-                return context.commit('addPrice', { id: ticker, s: source, cc: counterCurrency, items: items })
-            })
-        },
         removeGroup(context, groupId) {
             return context.commit('removeGroup', groupId)
+        },
+        async loadTopCoins(context) {
+            return api.topCoins().then(coins => {
+                return context.commit('setTopCoins', coins)
+            })
         }
     }
 })
-
-function getContent(item) {
-    switch (item.signal) {
-        case 'kumo_breakout': return 'Ichimoku';
-        case 'ANN_Simple': return 'ANN_Simple';
-    }
-    return item.signal
-}
 
 function getItemClass(item) {
     var itemsWithoutMeaningFulTrendArray = ['ANN_AnomalyPrc']

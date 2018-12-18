@@ -7,32 +7,71 @@ const sources = ['POLONIEX', 'BITTREX', 'BINANCE']
 const counterCurrencies = ['BTC', 'ETH', 'USDT', 'XMR']
 
 export default {
-    getHistory: async (ticker, horizon, source, counterCurrency = 0) => {
+    getHistory: async (ticker, horizon, source, counterCurrency) => {
+
+        let filters = ''
+        filters += horizon != null ? `&horizon=${horizons.indexOf(horizon)}` : ''
+        filters += source != null ? `&source=${sources.indexOf(source.toUpperCase())}` : ''
+        filters += counterCurrency != null ? `&counter_currency=${counterCurrencies.indexOf(counterCurrency.toUpperCase())}` : ''
 
         var options = {
-            uri: `${coreApiUrl}/signals/?source=${sources.indexOf(source.toUpperCase())}&transaction_currency=${ticker}&counter_currency=${counterCurrencies.indexOf(counterCurrency.toUpperCase())}&horizon=${horizons.indexOf(horizon)}`,
+            uri: `${coreApiUrl}/signals/?page_size=100&transaction_currency=${ticker.toUpperCase()}${filters}`,
             headers: {
-                "API-KEY": coreApiKey,
+                "Authorization": `Token ${coreApiKey}`,
                 "Content-Type": "application/json"
+            },
+            json: true
+        }
+
+        return rp(options).catch(err => console.log(err.message));
+    },
+    getHistories: async () => {
+
+        var options = {
+            uri: `${coreApiUrl}/signals/?page_size=100`,
+            headers: {
+                "Authorization": `Token ${coreApiKey}`,
+                "Content-Type": "application/json"
+            },
+            json: true
+        }
+
+        return rp(options).then(data => {return data.results}).catch(err => console.log(err.message));
+    },
+    getHistoryPrices: async (ticker, source = 'BINANCE', counterCurrency = 'BTC') => {
+        var options = {
+            uri: `${coreApiUrl}/resampled-prices/?source=${sources.indexOf(source.toUpperCase())}&transaction_currency=${ticker.toUpperCase()}&counter_currency=${counterCurrencies.indexOf(counterCurrency.toUpperCase())}`,
+            headers: {
+                "Authorization": `Token ${coreApiKey}`,
+                "Content-Type": "application/json"
+            },
+            json: true
+        }
+        return rp(options).catch(err => console.log(err));
+    },
+    getPrice: async (ticker, counterCurrency = 'BTC') => {
+        var options = {
+            uri: `${coreApiUrl}/resampled-prices?transaction_currency=${ticker}&source=2&counter_currency=${counterCurrencies.indexOf(counterCurrency)}&page_size=1`,
+            headers: {
+                "Authorization": `Token ${coreApiKey}`,
+                "Content-Type": "application/json"
+            },
+            json: true
+        }
+
+        return rp(options).then(data => { return data.results.length > 0 ? data.results[0] : Number.NaN }).catch(err => console.log(err));
+    },
+    topCoins: async () => {
+        var options = {
+            uri: `${coreApiUrl}/signals/coins-with-most-signals/`,
+            headers: {
+                "Authorization": `Token ${coreApiKey}`
             },
             json: true
         }
 
         return rp(options).then(data => {
             return data;
-        }).catch(err => console.log(err));
-    },
-    getHistoryPrices: async (ticker, source, counterCurrency = 0) => {
-        return fetch(`${coreApiUrl}/history-prices/?source=${sources.indexOf(source.toUpperCase())}&transaction_currency=${ticker}&counter_currency=${counterCurrencies.indexOf(counterCurrency.toUpperCase())}`, {
-            headers: {
-                "API-KEY": coreApiKey,
-                "Content-Type": "application/json"
-            },
-            mode: "cors"
-        }).then(result => {
-            return result.json().then(data => {
-                return data;
-            });
-        }).catch(err => console.log(err));
+        }).catch(err => console.log(err.message));
     }
 }
