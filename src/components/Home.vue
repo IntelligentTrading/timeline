@@ -55,7 +55,8 @@ export default {
     searchTicker: function(nameOrSymbol) {
       if (nameOrSymbol == "" || nameOrSymbol == null) return;
       else {
-        this.$router.push({ path: `overview/${nameOrSymbol}` });
+        this.$store.commit("setCurrentTicker", nameOrSymbol);
+        this.$router.push({ path: `overview` });
       }
     }
   }

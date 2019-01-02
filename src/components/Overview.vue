@@ -7,24 +7,28 @@
         @click="goHome"
       >
       <el-input class="searchBarExt" v-model="ticker" placeholder="Ticker name or symbol"></el-input>
+      <div class="inner-message">
+        <span class="error-message negative">{{this.errorMessage}}</span>
+        <i v-show="this.errorMessage !== ''" class="fas fa-exclamation-triangle negative"></i>
+      </div>
     </el-row>
-    <el-row :gutter="24">
+    <el-row :gutter="24" style="padding-right:45px">
       <el-col :span="12">
         <el-row>
           <price-line
             :symbol="this.ticker"
-            :pricesPayload="this.pricesHistory"
+            :pricesPayload="this.pricesHistory || []"
             :loading="isLoading"
           ></price-line>
         </el-row>
       </el-col>
       <el-col :span="6" style="text-align:end">
-        <label class="historyTitle">Full Signals History</label>
+        <label class="historyTitle">Selected Signals Details</label>
         <div class="historyContainer" v-loading="isLoading">
-          <history class="history"/>
+          <signal-details class="history"/>
         </div>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="6" style="text-align:end">
         <label class="historyTitle">Live Signals Feed</label>
         <div class="historyContainer" v-loading="isLoading">
           <feed class="history" :source="livefeed"/>
@@ -39,31 +43,48 @@ import moment from "moment";
 import { mapActions, mapState, mapGetters } from "vuex";
 import _ from "lodash";
 import PriceLine from "./PriceLine";
-import History from "./History";
+import SignalDetails from "./SignalDetails";
 import Feed from "./Feed";
 import api from "../store/api";
 
 export default {
   name: "Overview",
-  props: ["symbol"],
   data() {
     return {
-      ticker: this.$props.symbol.toUpperCase(),
-      isLoading: false
+      isLoading: false,
+      errorMessage: "",
+      counter_currency: "BTC"
     };
   },
   computed: {
-    ...mapGetters(["topCoins", "counterCurrencies", "selectedSignals"])
-  },
-  watch: {
-    ticker: function(newVal, oldVal) {
-      vm.$store.commit("setSelectedSignals", []);
+    ...mapGetters([
+      "topCoins",
+      "counterCurrencies",
+      "selectedSignals",
+      "currentTicker",
+      "currentCounterCurrency"
+    ]),
+    ticker: {
+      get: function() {
+        if (!this.currentTicker) {
+          this.$store.commit("setCurrentTicker", localStorage["currentTicker"]);
+          return localStorage["currentTicker"].toUpperCase();
+        }
+
+        return this.currentTicker.toUpperCase();
+      },
+      set: function(newTicker) {
+        this.$store.commit("setCurrentTicker", newTicker);
+      }
     }
   },
   asyncComputed: {
     livefeed: async function() {
       this.isLoading = true;
-      return await api.getHistories();
+      let historyEntries = await api.getHistories();
+      return historyEntries.filter(historyEntry => {
+        return historyEntry.signal != "SMA";
+      });
     },
     pricesHistory: async function() {
       this.isLoading = true;
@@ -72,7 +93,7 @@ export default {
         this.ticker,
         null,
         "BINANCE",
-        "BTC"
+        this.currentCounterCurrency
       );
 
       let maxPrice = Number.NEGATIVE_INFINITY;
@@ -97,13 +118,12 @@ export default {
               radius: 2
             },
             label: {
-              borderColor: "#FF4560",
               offsetY: 0,
               offsetX: 0,
               style: {
                 background: "#fff",
                 color: "#777",
-                fontSize: "12px",
+                fontSize: "0px",
                 cssClass: "apexcharts-point-annotation-label"
               },
               text: `${historyEntry.id}`
@@ -111,17 +131,36 @@ export default {
           };
         });
 
-      let priceHistory = await api.getHistoryPrices(this.ticker);
-      let data = priceHistory.results.map(price => {
-        let currentPrice = price.close_price / Math.pow(10, 8).toFixed(6);
+      let priceHistory = await api.getHistoryPrices(this.ticker,this.currentCounterCurrency);
+      if (!priceHistory.results[0]) {
+        this.isLoading = false;
+        this.errorMessage = `${this.ticker}/${this.currentCounterCurrency} not found.`;
+        return;
+      }
 
-        maxPrice = currentPrice > maxPrice ? currentPrice : maxPrice;
-        minPrice = currentPrice < minPrice ? currentPrice : minPrice;
-        return {
-          x: new Date(price.timestamp).getTime(),
-          y: currentPrice
-        };
-      });
+      this.errorMessage = "";
+
+      let data = priceHistory.results
+        .filter(price => {
+          return (
+            price != null &&
+            price.close_price != null &&
+            price.close_price > 0 &&
+            !points.some(point => {
+              return moment(price.timestamp).isSame(point.x);
+            })
+          );
+        })
+        .map(price => {
+          let currentPrice = price.close_price / Math.pow(10, 8).toFixed(6);
+
+          maxPrice = currentPrice > maxPrice ? currentPrice : maxPrice;
+          minPrice = currentPrice < minPrice ? currentPrice : minPrice;
+          return {
+            x: new Date(price.timestamp).getTime(),
+            y: currentPrice
+          };
+        });
 
       let fullDataSource = _.sortBy(
         [
@@ -214,7 +253,7 @@ export default {
       this.$router.push({ path: `../home` });
     }
   },
-  components: { PriceLine, History, Feed }
+  components: { PriceLine, SignalDetails, Feed }
 };
 </script>
 
@@ -254,5 +293,14 @@ export default {
   height: 550px;
   overflow-y: scroll;
   border-bottom: #dcdfe65e solid 1px;
+}
+
+.inner-message {
+  position: absolute;
+  right: 80px;
+}
+
+.error-message {
+  font-size: 10px;
 }
 </style>

@@ -19,14 +19,18 @@
         <el-row>
           <span
             class="currentPrice"
-          >{{this.$props.pricesPayload ? this.$props.pricesPayload.current.close_price / Math.pow(10,8) : '--'}}</span>
-          <el-tag class="roundTag" type="info" size="mini">BTC</el-tag>
+          >{{this.$props.pricesPayload && this.$props.pricesPayload.current? this.$props.pricesPayload.current.close_price / Math.pow(10,8) : '--'}}</span>
+          <el-radio-group :value='this.currentCounterCurrency' @input=changeCounterCurrency fill="grey" >
+            <el-radio-button label="BTC" @change="changeCounterCurrency('BTC')"></el-radio-button>
+            <el-radio-button label="ETH" @change="changeCounterCurrency('ETH')"></el-radio-button>
+            <el-radio-button label="USDT" @change="changeCounterCurrency('USDT')"></el-radio-button>
+          </el-radio-group>
         </el-row>
         <el-row
-          :style="this.$props.pricesPayload && this.$props.pricesPayload.current.price_change_24h >=0 ? 'color: green;' : 'color:red'"
+          :style="this.$props.pricesPayload && this.$props.pricesPayload.current && this.$props.pricesPayload.current.price_change_24h >=0 ? 'color: green;' : 'color:red'"
         >
           <div></div>
-          <label>Price change 24h: {{this.$props.pricesPayload && this.$props.pricesPayload.current.price_change_24h >=0? '↑':'↓'}}{{this.$props.pricesPayload ? (this.$props.pricesPayload.current.price_change_24h * 100).toFixed(2) : '--'}} %</label>
+          <label>Price change 24h: {{this.$props.pricesPayload && this.$props.pricesPayload.current && this.$props.pricesPayload.current.price_change_24h >=0? '↑':'↓'}}{{this.$props.pricesPayload && this.$props.pricesPayload.current? (this.$props.pricesPayload.current.price_change_24h * 100).toFixed(2) : '--'}} %</label>
         </el-row>
       </div>
       <apexchart
@@ -46,10 +50,19 @@ export default {
   name: "Apex",
   props: ["symbol", "pricesPayload", "loading"],
   data: function() {
-    return {};
+    return {
+      availableCounterCurrencies:[]
+    };
   },
-  mounted() {
+  computed: {
+    ...mapGetters(["currentCounterCurrency"])
+  },
+  methods:{
+    changeCounterCurrency(val){
+      this.$store.commit('setCurrentCounterCurrency',val)
+    }
   }
+
 };
 </script>
 
@@ -81,6 +94,16 @@ export default {
   border-radius: 20px;
   margin-left: 10px;
   vertical-align: super;
+}
+
+.el-radio-group {
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+.el-radio-button__inner{
+  font-size:10px;
+  padding:8px
 }
 </style>
 

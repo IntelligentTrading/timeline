@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import Login from '@/components/Login'
 import Home from '@/components/Home'
 import Overview from '@/components/Overview'
-import SignalLine from '@/components/SignalLine'
 
 Vue.use(Router)
 
@@ -20,15 +19,9 @@ export default new Router({
       component: Home
     },
     {
-      path: '/overview/:symbol',
+      path: '/overview',
       name: 'Overview',
-      component: Overview,
-      props: true
+      component: Overview
     },
-    {
-      path: '/timeline',
-      name: 'SignalLine',
-      component: SignalLine
-    }
   ]
 })

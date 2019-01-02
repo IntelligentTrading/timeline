@@ -38,7 +38,7 @@ export default {
 
         return rp(options).then(data => {return data.results}).catch(err => console.log(err.message));
     },
-    getHistoryPrices: async (ticker, source = 'BINANCE', counterCurrency = 'BTC') => {
+    getHistoryPrices: async (ticker, counterCurrency = 'BTC', source = 'BINANCE') => {
         var options = {
             uri: `${coreApiUrl}/resampled-prices/?source=${sources.indexOf(source.toUpperCase())}&transaction_currency=${ticker.toUpperCase()}&counter_currency=${counterCurrencies.indexOf(counterCurrency.toUpperCase())}`,
             headers: {
