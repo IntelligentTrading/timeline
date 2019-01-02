@@ -102,8 +102,8 @@ export default {
 }
 
 .el-radio-button__inner{
-  font-size:10px;
-  padding:8px
+  font-size:10px !important;
+  padding:8px !important
 }
 </style>
 

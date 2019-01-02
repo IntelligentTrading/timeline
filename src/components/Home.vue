@@ -76,6 +76,6 @@ export default {
 }
 
 .searchBar {
-  width: 40%;
+  width: 40% !important;
 }
 </style>
