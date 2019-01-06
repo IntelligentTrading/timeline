@@ -28,6 +28,7 @@
                 :telegram-login="this.bot"
                 @callback="auth"
                 size="medium"
+                :radius='4'
                 :userpic="false"
               />
             </el-row>
@@ -112,5 +113,18 @@ export default {
   background: transparent;
   color: cornflowerblue !important;
   border: cornflowerblue solid 1px !important;
+}
+
+button.tgme_widget_login_button{
+  background: cornflowerblue
+}
+
+.tgme_widget_login.medium button.tgme_widget_login_button {
+  font-size: 13px;
+  line-height: 17px;
+  padding: 5px 14px 6px;
+  border-radius: 4px;
+  height: 40px;
+  font-family: 'Rubik'
 }
 </style>
