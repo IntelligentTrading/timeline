@@ -22,13 +22,13 @@
             <el-row style="text-align:left;font-size:14px">
               <label class="welcome-text">Already on a PRO plan?</label>
             </el-row>
-            <el-row>
+            <el-row style="margin-top: 10px;display: flex;">
               <vue-telegram-login
                 mode="callback"
                 :telegram-login="this.bot"
                 @callback="auth"
-                size="medium"
-                :radius='4'
+                size="large"
+                :radius="4"
                 :userpic="false"
               />
             </el-row>
@@ -116,13 +116,12 @@ export default {
 }
 
 .tgme_widget_login.large button.tgme_widget_login_button {
-    font-size: 14px;
-    line-height: 20px;
-    padding: 10px 20px;
-    border-radius: 20px;
-    background: cornflowerblue;
-    font-weight: 400;
-    font-family: Roboto;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: cornflowerblue;
+  font-weight: 400;
+  font-family: Roboto;
 }
-
 </style>
