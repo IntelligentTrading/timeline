@@ -67,7 +67,7 @@ export default {
       if (itfUserDto) {
         let itfUser = new ItfUser(JSON.parse(itfUserDto));
         if (itfUser.isPro) {
-          localStorage.setItem("user", JSON.stringify(itf_user));
+          localStorage.setItem("user", JSON.stringify(itfUserDto));
           this.$router.push({ path: `home` });
         } else {
           this.error =
@@ -115,16 +115,9 @@ export default {
   border: cornflowerblue solid 1px !important;
 }
 
-button.tgme_widget_login_button{
-  background: cornflowerblue
+.tgme_widget_login_button{
+  background: cornflowerblue !important;
+  padding: 10px 20px !important
 }
 
-.tgme_widget_login.medium button.tgme_widget_login_button {
-  font-size: 13px;
-  line-height: 17px;
-  padding: 5px 14px 6px;
-  border-radius: 4px;
-  height: 40px;
-  font-family: 'Rubik'
-}
 </style>
