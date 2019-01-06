@@ -83,7 +83,7 @@ export default {
 .login-card {
   height: 350px;
   width: 350px;
-  border: 0px;
+  border: 0px !important;
 }
 
 .right-login-col {
