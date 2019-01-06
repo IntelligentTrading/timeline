@@ -6,11 +6,14 @@
         <div style="margin:auto;">
           <el-card class="login-card" shadow="never">
             <el-row style="text-align:left;font-size:24px;padding-bottom:20px">
-              <label style="font-weight:600;letter-spacing:1px">Better Visualization.<br/>Better trading.</label>
+              <label style="font-weight:600;letter-spacing:1px">Better Visualization.
+                <br>Better trading.
+              </label>
             </el-row>
             <el-row style="text-align:left;font-size:14px">
-              <label class="welcome-text">Timeline is on private testing now. Get early access by subscribing or trying the platform for 7 days.
-              </label>
+              <label
+                class="welcome-text"
+              >Timeline is on private testing now. Get early access by subscribing or trying the platform for 7 days.</label>
             </el-row>
             <el-row style="margin: 50px 0;display: flex;">
               <el-button class="trial">Try 7 days</el-button>
@@ -88,7 +91,7 @@ export default {
 
 .right-login-col {
   height: 100vh;
-  background: url("https://cdn.dribbble.com/users/292354/screenshots/4622672/ai_signals_trading.jpg")
+  background: url("https://cdn.dribbble.com/users/292354/screenshots/4622672/ai_signals_trading.jpg");
 }
 
 .logo {
@@ -100,14 +103,14 @@ export default {
 
 .trial {
   width: 300px;
-  background: cornflowerblue;
-  border: cornflowerblue solid 1px;
-  color: white;
+  background: cornflowerblue !important;
+  border: cornflowerblue solid 1px !important;
+  color: white !important;
 }
 
-.more{
+.more {
   background: transparent;
-  color: cornflowerblue;
-  border:  cornflowerblue solid 1px;
+  color: cornflowerblue !important;
+  border: cornflowerblue solid 1px !important;
 }
 </style>
