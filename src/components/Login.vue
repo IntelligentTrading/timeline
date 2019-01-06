@@ -115,9 +115,14 @@ export default {
   border: cornflowerblue solid 1px !important;
 }
 
-.tgme_widget_login_button{
-  background: cornflowerblue !important;
-  padding: 10px 20px !important
+.tgme_widget_login.large button.tgme_widget_login_button {
+    font-size: 14px;
+    line-height: 20px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    background: cornflowerblue;
+    font-weight: 400;
+    font-family: Roboto;
 }
 
 </style>
