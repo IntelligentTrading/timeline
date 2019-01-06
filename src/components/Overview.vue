@@ -112,7 +112,7 @@ export default {
             x: new Date(historyEntry.timestamp).getTime(),
             y: historyEntry.price / Math.pow(10, 8),
             marker: {
-              size: 8,
+              size: 4,
               fillColor: "#fff",
               strokeColor: historyEntry.trend > 0 ? "green" : "red",
               radius: 2
