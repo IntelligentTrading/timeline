@@ -6,22 +6,26 @@
         style="height:50px;margin:20px"
       >
     </el-row>
-    <el-row>
+    <el-row :gutter='24'>
+      <el-col :span='12' :offset="6">
       <el-input
         class="searchBar"
         v-model="ticker"
         placeholder="Ticker name or symbol"
         @keyup.enter.native="searchTicker(ticker)"
       ></el-input>
+      </el-col>
+      <el-col :span='4' style='display:flex'>
       <el-button
         type="primary"
         :disabled="ticker == '' || ticker == null"
-        style="margin:5px"
+        class="searchButton"
         @click="searchTicker(ticker)"
       >Search</el-button>
+      </el-col>
     </el-row>
-    <el-row>
-      <label style=" color: currentColor;font-size: x-small;margin-left: -42%;">Trending coins</label>
+    <el-row style='margin:10px'>
+      <label style=" color: currentColor;font-size: x-small;font-weight:400;margin-left: -42%;">Trending coins</label>
     </el-row>
     <el-row>
       <el-button
@@ -75,7 +79,4 @@ export default {
   width: -webkit-fill-available;
 }
 
-.searchBar {
-  width: 40%;
-}
 </style>

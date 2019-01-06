@@ -20,7 +20,11 @@
           <span
             class="currentPrice"
           >{{this.$props.pricesPayload && this.$props.pricesPayload.current? this.$props.pricesPayload.current.close_price / Math.pow(10,8) : '--'}}</span>
-          <el-radio-group :value='this.currentCounterCurrency' @input=changeCounterCurrency fill="grey" >
+          <el-radio-group
+            :value="this.currentCounterCurrency"
+            @input="changeCounterCurrency"
+            fill="grey"
+          >
             <el-radio-button label="BTC" @change="changeCounterCurrency('BTC')"></el-radio-button>
             <el-radio-button label="ETH" @change="changeCounterCurrency('ETH')"></el-radio-button>
             <el-radio-button label="USDT" @change="changeCounterCurrency('USDT')"></el-radio-button>
@@ -51,18 +55,17 @@ export default {
   props: ["symbol", "pricesPayload", "loading"],
   data: function() {
     return {
-      availableCounterCurrencies:[]
+      availableCounterCurrencies: []
     };
   },
   computed: {
     ...mapGetters(["currentCounterCurrency"])
   },
-  methods:{
-    changeCounterCurrency(val){
-      this.$store.commit('setCurrentCounterCurrency',val)
+  methods: {
+    changeCounterCurrency(val) {
+      this.$store.commit("setCurrentCounterCurrency", val);
     }
   }
-
 };
 </script>
 
@@ -101,9 +104,9 @@ export default {
   margin-left: 10px;
 }
 
-.el-radio-button__inner{
-  font-size:10px;
-  padding:8px
+.el-radio-button__inner {
+  font-size: 10px !important;
+  padding: 8px !important;
 }
 </style>
 
