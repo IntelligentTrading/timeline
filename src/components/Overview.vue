@@ -98,6 +98,19 @@ export default {
 
       let maxPrice = Number.NEGATIVE_INFINITY;
       let minPrice = Number.POSITIVE_INFINITY;
+      let neutralSignals = ["ANN_AnomalyPrc", "ANN_Simple"];
+
+      let groupedHistoryEntries = _.groupBy(
+        signalsHistory.results
+          .filter(historyEntry => {
+            return historyEntry.signal != "SMA";
+          })
+          .map(sig => {
+            sig.trend = neutralSignals.indexOf(sig.signal) >= 0 ? 0 : sig.trend;
+            return sig;
+          }),
+        "timestamp"
+      );
 
       var points = signalsHistory.results
         .filter(historyEntry => {
@@ -113,10 +126,15 @@ export default {
             y: historyEntry.price / Math.pow(10, 8),
             marker: {
               size: 4,
-              fillColor: historyEntry.trend > 0 ? "green" : "red",
-              strokeColor: historyEntry.trend > 0 ? "green" : "red",
-              radius: 4,
-              hover: 6
+              fillColor: getGroupedTrend(
+                groupedHistoryEntries,
+                historyEntry.timestamp
+              ),
+              strokeColor: getGroupedTrend(
+                groupedHistoryEntries,
+                historyEntry.timestamp
+              ),
+              radius: 4
             },
             label: {
               offsetY: 0,
@@ -197,11 +215,17 @@ export default {
               let eventPoint = points.find(point => {
                 return point.x == selectedPoint.x && point.y == selectedPoint.y;
               });
-              let selectedSignal = signalsHistory.results.find(h => {
-                return h.id == eventPoint.label.text;
-              });
 
-              vm.$store.commit("setSelectedSignals", [selectedSignal]);
+              if (eventPoint) {
+                vm.$store.commit(
+                  "setSelectedSignals",
+                  groupedHistoryEntries[
+                    moment(selectedPoint.x)
+                      .format()
+                      .split("+")[0]
+                  ]
+                );
+              }
             },
             zoomed: function(chartContext, { xaxis, yaxis }) {
               vm.$store.commit("setCurrentSelection", {
@@ -263,6 +287,28 @@ export default {
   },
   components: { PriceLine, SignalDetails, Feed }
 };
+
+function getGroupedTrend(groupedHistoryEntries, timestamp) {
+  
+  let currentGroupedEntry =
+    groupedHistoryEntries[
+      moment(timestamp)
+        .format()
+        .split("+")[0]
+    ];
+  if (!currentGroupedEntry) return "yellow";
+
+  let groupedTrend = 0;
+  currentGroupedEntry.forEach(entry => {
+    groupedTrend += parseInt(entry.trend);
+  });
+
+
+  console.log(groupedTrend);
+  if (groupedTrend > 0) return "green";
+  else if (groupedTrend < 0) return "red";
+  else return "gray";
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
