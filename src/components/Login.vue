@@ -7,7 +7,7 @@
           <el-card class="login-card" shadow="never">
             <el-row style="text-align:left;font-size:24px;padding-bottom:20px">
               <label style="font-weight:600;letter-spacing:1px">Better Visualization.
-                <br>Better trading.
+                <br>Better Trading.
               </label>
             </el-row>
             <el-row style="text-align:left;font-size:14px">
@@ -33,7 +33,7 @@
               />
             </el-row>
             <el-row>
-              <label v-show="error !== ''">{{error}}</label>
+              <label style="font-size: 11px;color: red;" v-show="error !== ''">{{error}}</label>
             </el-row>
           </el-card>
         </div>
@@ -67,7 +67,7 @@ export default {
       if (itfUserDto) {
         let itfUser = new ItfUser(JSON.parse(itfUserDto));
         if (itfUser.isPro) {
-          localStorage.setItem("user", JSON.stringify(itfUserDto));
+          localStorage.setItem("user", itfUserDto);
           this.$router.push({ path: `home` });
         } else {
           this.error =
@@ -85,7 +85,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .login-card {
-  height: 350px;
   width: 350px;
   border: 0px !important;
 }

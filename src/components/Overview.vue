@@ -113,9 +113,10 @@ export default {
             y: historyEntry.price / Math.pow(10, 8),
             marker: {
               size: 4,
-              fillColor: "#fff",
+              fillColor: historyEntry.trend > 0 ? "green" : "red",
               strokeColor: historyEntry.trend > 0 ? "green" : "red",
-              radius: 2
+              radius: 4,
+              hover: 6
             },
             label: {
               offsetY: 0,
@@ -131,10 +132,15 @@ export default {
           };
         });
 
-      let priceHistory = await api.getHistoryPrices(this.ticker,this.currentCounterCurrency);
+      let priceHistory = await api.getHistoryPrices(
+        this.ticker,
+        this.currentCounterCurrency
+      );
       if (!priceHistory.results[0]) {
         this.isLoading = false;
-        this.errorMessage = `${this.ticker}/${this.currentCounterCurrency} not found.`;
+        this.errorMessage = `${this.ticker}/${
+          this.currentCounterCurrency
+        } not found.`;
         return;
       }
 
@@ -212,8 +218,9 @@ export default {
           enabled: true
         },
         markers: {
-          size: 1,
-          fillOpacity: 0
+          size: 3,
+          fillOpacity: 0.1,
+          strokeWidth: 0
         },
         yaxis: {
           max: maxPrice + maxPrice * 0.01,
@@ -227,7 +234,8 @@ export default {
         },
         annotations: { points: points, position: "back" },
         stroke: {
-          curve: "straight"
+          curve: "smooth",
+          width: 0
         },
         dataLabels: {
           enabled: false
