@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div :class="this.loading ? 'disabledComponent' : ''">
     <label
       style="font-size:9px"
       v-show="!selectedSignals || selectedSignals.length <= 0"
     >Click on a signal (circle) or select an area to get insights.</label>
     <el-row v-for="signal in selectedSignals" :key="signal.id">
-      <signal :source="signal"/>
+      <signal :signalDto="signal"/>
     </el-row>
   </div>
 </template>
@@ -16,7 +16,7 @@ import Signal from "./Signal";
 
 export default {
   name: "SignalDetails",
-  props: ["signalsSource"],
+  props: ["signalsSource","loading"],
   data() {
     return {};
   },

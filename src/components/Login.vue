@@ -16,7 +16,7 @@
               >Timeline is on private testing now. Get early access by subscribing or trying the platform for 7 days.</label>
             </el-row>
             <el-row style="margin: 50px 0;display: flex;">
-              <el-button class="trial">Try 7 days</el-button>
+              <el-button class="trial" @click="goToTrialPage">Try 7 days</el-button>
               <el-button class="more">Learn More</el-button>
             </el-row>
             <el-row style="text-align:left;font-size:14px">
@@ -28,7 +28,7 @@
                 :telegram-login="this.bot"
                 @callback="auth"
                 size="large"
-                :radius="4"
+                :radius="'4'"
                 :userpic="false"
               />
             </el-row>
@@ -76,6 +76,9 @@ export default {
       } else {
         this.error = "User not found!";
       }
+    },
+    goToTrialPage: () => {
+      window.location.href = "https://intelligenttrading.org/free";
     }
   },
   components: { vueTelegramLogin }

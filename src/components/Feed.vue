@@ -1,22 +1,25 @@
 <template>
   <div>
-    <el-row v-for="signal in this.$props.source" :key="signal.id">
-      <signal :source='signal'/>
-    </el-row>
+    <div :class="this.loading ? 'disabledComponent' : ''">
+      <el-row v-for="signal in this.$props.signals" :key="signal.id">
+        <signal :signalDto="signal"/>
+      </el-row>
+    </div>
   </div>
 </template>
 <script>
 import api from "../store/api";
 import { mapGetters, mapState } from "vuex";
-import Signal from './Signal'
+import Signal from "./Signal";
+import ProgressLine from "./ProgressLine";
 
 export default {
   name: "Feed",
-  props: ["source"],
+  props: ["signals", "loading"],
   data() {
     return {};
   },
-  components:{Signal},
+  components: { Signal, ProgressLine },
   computed: {
     ...mapGetters(["horizons", "sources", "counterCurrencies"])
   }

@@ -27,7 +27,8 @@ export default new Vuex.Store({
     topCoins: {},
     selectedSignals: [],
     currentTicker: null,
-    currentCounterCurrency: "BTC"
+    currentCounterCurrency: "BTC",
+    currentExchange: "BINANCE"
   },
   mutations: {
     setCurrentTicker(state, ticker) {
@@ -37,6 +38,11 @@ export default new Vuex.Store({
     },
     setCurrentCounterCurrency(state, counterCurrency) {
       state.currentCounterCurrency = counterCurrency;
+      state.selectedSignals = [];
+    },
+    setCurrentExchange(state, currentExchange) {
+      state.currentExchange = currentExchange;
+      state.selectedSignals = [];
     },
     addPrice(state, price) {
       state.prices.push(price);
@@ -67,6 +73,12 @@ export default new Vuex.Store({
       });
 
       state.selectedSignals = selectedPoints;
+    },
+    setChartSelection(state, { ticker, counter, source }) {
+      state.currentExchange = source;
+      state.currentTicker = ticker;
+      state.currentCounterCurrency = counter;
+      state.selectedSignals = [];
     }
   },
   getters: {
@@ -75,6 +87,9 @@ export default new Vuex.Store({
     },
     currentCounterCurrency(state) {
       return state.currentCounterCurrency;
+    },
+    currentExchange(state) {
+      return state.currentExchange;
     },
     telegramChatId(state) {
       return state.telegram_chat_id;
@@ -105,30 +120,6 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async getHistory(context, { ticker, horizon, source, counterCurrency }) {
-      console.log(
-        `Loading history for ${ticker} ${horizon} ${source} ${counterCurrency}`
-      );
-      return api
-        .getHistory(ticker, horizon, source, counterCurrency)
-        .then(history => {
-          //build group
-          var items = history.results.map(result => {
-            return {
-              id: result.id,
-              timestamp: result.timestamp,
-              trend: result.trend,
-              price: result.price,
-              signal: result.signal,
-              rsi: result.rsi_value
-                ? `<span style='font-size:10px'> (${Math.round(
-                    result.rsi_value
-                  )})</span>`
-                : ""
-            };
-          });
-        });
-    },
     async loadTopCoins(context) {
       return api.topCoins().then(coins => {
         return context.commit("setTopCoins", coins);

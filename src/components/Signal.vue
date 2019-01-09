@@ -4,12 +4,15 @@
       <i
         class="far fa-dot-circle"
         style="font-size:12px"
-        :class="source.trend>0 ? 'positive' : (source.trend < 0 ? 'negative' : 'neutral')"
+        :class="signalDto.trend>0 ? 'positive' : (signalDto.trend < 0 ? 'negative' : 'neutral')"
       ></i>
       <label class="signal-title">
-        {{sources[source.source]}}:
-        <span class="transaction-currency" @click="updateTicker">{{source.transaction_currency}}</span>
-        /{{counterCurrencies[source.counter_currency]}}
+        {{sources[signalDto.source]}}:
+        <span
+          class="transaction-currency"
+          @click="setChartSelection"
+        >{{signalDto.transaction_currency}}</span>
+        /{{counterCurrencies[signalDto.counter_currency]}}
       </label>
       <el-tooltip content="Alert validity" placement="top">
         <label class="alert-validity">
@@ -29,14 +32,14 @@
         <tbody>
           <td
             class="trading-price"
-          >{{source.price/100000000}} {{counterCurrencies[source.counter_currency]}}</td>
+          >{{signalDto.price/100000000}} {{counterCurrencies[signalDto.counter_currency]}}</td>
           <td
             v-html="this.getFullSignalValueDescription()"
             style="padding-left:10px; text-align:end"
-            :class="source.trend>0 ? 'positive' : (source.trend < 0 ? 'negative' : 'neutral')"
+            :class="signalDto.trend>0 ? 'positive' : (signalDto.trend < 0 ? 'negative' : 'neutral')"
           ></td>
         </tbody>
-        <tfoot style="font-size:8px">Sent at: {{source.timestamp}}</tfoot>
+        <tfoot style="font-size:8px">Sent at: {{signalDto.timestamp}}</tfoot>
       </table>
     </el-row>
   </el-card>
@@ -47,7 +50,7 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "Signal",
-  props: ["source"],
+  props: ["signalDto"],
   data() {
     return {};
   },
@@ -61,11 +64,23 @@ export default {
     ])
   },
   methods: {
-    updateTicker: function() {
-      this.$store.commit("setCurrentTicker", this.source.transaction_currency);
+    setChartSelection: function() {
+      console.log('clicked')
+      console.log(
+        this.signalDto.transaction_currency +
+          " " +
+          this.sources[this.signalDto.source] +
+          " " +
+          this.counterCurrencies[this.signalDto.counter_currency]
+      );
+      this.$store.commit("setChartSelection", {
+        ticker: this.signalDto.transaction_currency,
+        source: this.sources[this.signalDto.source],
+        counter: this.counterCurrencies[this.signalDto.counter_currency]
+      });
     },
     getFullSignalTypeDescription: function() {
-      let index = this.signalTypes.indexOf(this.source.signal);
+      let index = this.signalTypes.indexOf(this.signalDto.signal);
       const fullSignalTypes = [
         "AI",
         "Relative Strength Index",
@@ -76,36 +91,36 @@ export default {
         "Volume Based Index"
       ];
 
-      return index >= 0 ? fullSignalTypes[index] : this.source.signal;
+      return index >= 0 ? fullSignalTypes[index] : this.signalDto.signal;
     },
     getFullSignalValueDescription: function() {
-      let index = this.signalTypes.indexOf(this.source.signal);
+      let index = this.signalTypes.indexOf(this.signalDto.signal);
 
       const fullSignalTypes = [
         '<i class="fas fa-robot"></i>',
-        Math.round(this.source.rsi_value) +
-          (this.source.trend > 0
+        Math.round(this.signalDto.rsi_value) +
+          (this.signalDto.trend > 0
             ? "<span style='font-size:12px; padding:5px'>oversold</span>"
             : " <span style='font-size:12px; padding:5px'>overbought</span>"),
-        Math.round(this.source.rsi_value) +
-          (this.source.trend > 0
+        Math.round(this.signalDto.rsi_value) +
+          (this.signalDto.trend > 0
             ? "<span style='font-size:12px; padding:5px'>oversold</span>"
             : " <span style='font-size:12px; padding:5px'>overbought</span>"),
         "SMA",
-        this.source.trend > 0
+        this.signalDto.trend > 0
           ? "<span style='font-size:12px;'>positive breakout</span>"
           : " <span style='font-size:12px;'>negative breakout</span>",
         '<i class="fas fa-robot"></i>',
-        this.source.trend > 0
+        this.signalDto.trend > 0
           ? '<i class="fas fa-arrow-circle-up"></i>'
           : '<i class="fas fa-arrow-circle-down"></i>'
       ];
 
-      return index >= 0 ? fullSignalTypes[index] : this.source.signal;
+      return index >= 0 ? fullSignalTypes[index] : this.signalDto.signal;
     },
     getAlertValidity: function() {
       const validity = ["1h", "4h", "24h"];
-      return validity[this.source.horizon];
+      return validity[this.signalDto.horizon];
     }
   }
 };
@@ -125,7 +140,6 @@ export default {
 }
 
 .signal-type {
-  padding-left: 10px;
   text-align: end;
 }
 

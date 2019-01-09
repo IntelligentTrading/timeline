@@ -16,22 +16,22 @@
       <el-col :span="12">
         <el-row>
           <price-line
+            :loading="this.isLoading"
             :symbol="this.ticker"
             :pricesPayload="this.pricesHistory || []"
-            :loading="isLoading"
           ></price-line>
         </el-row>
       </el-col>
       <el-col :span="6" style="text-align:end">
         <label class="historyTitle">Selected Signals Details</label>
-        <div class="historyContainer" v-loading="isLoading">
-          <signal-details class="history"/>
+        <div class="historyContainer">
+          <signal-details class="history" :loading='this.isLoading' />
         </div>
       </el-col>
       <el-col :span="6" style="text-align:end">
         <label class="historyTitle">Live Signals Feed</label>
-        <div class="historyContainer" v-loading="isLoading">
-          <feed class="history" :source="livefeed"/>
+        <div class="historyContainer">
+          <feed class="history" :signals="livefeed" :loading='this.isLoading || this.isFeedLoading'/>
         </div>
       </el-col>
     </el-row>
@@ -52,6 +52,7 @@ export default {
   data() {
     return {
       isLoading: false,
+      isFeedLoading: false,
       errorMessage: "",
       counter_currency: "BTC"
     };
@@ -62,7 +63,8 @@ export default {
       "counterCurrencies",
       "selectedSignals",
       "currentTicker",
-      "currentCounterCurrency"
+      "currentCounterCurrency",
+      "currentExchange"
     ]),
     ticker: {
       get: function() {
@@ -80,8 +82,9 @@ export default {
   },
   asyncComputed: {
     livefeed: async function() {
-      this.isLoading = true;
+      this.isFeedLoading = true;
       let historyEntries = await api.getHistories();
+      this.isFeedLoading = false;
       return historyEntries.filter(historyEntry => {
         return historyEntry.signal != "SMA";
       });
@@ -92,7 +95,7 @@ export default {
       let signalsHistory = await api.getHistory(
         this.ticker,
         null,
-        "BINANCE",
+        this.currentExchange,
         this.currentCounterCurrency
       );
 
@@ -124,6 +127,9 @@ export default {
           return {
             x: new Date(historyEntry.timestamp).getTime(),
             y: historyEntry.price / Math.pow(10, 8),
+            xaxis: {
+              offsetX: 0
+            },
             marker: {
               size: 4,
               fillColor: getGroupedTrend(
@@ -152,13 +158,14 @@ export default {
 
       let priceHistory = await api.getHistoryPrices(
         this.ticker,
-        this.currentCounterCurrency
+        this.currentCounterCurrency,
+        this.currentExchange
       );
       if (!priceHistory.results[0]) {
         this.isLoading = false;
         this.errorMessage = `${this.ticker}/${
           this.currentCounterCurrency
-        } not found.`;
+        } not found on ${this.currentExchange}`;
         return;
       }
 
@@ -242,7 +249,7 @@ export default {
           enabled: true
         },
         markers: {
-          size: 3,
+          size: 5,
           fillOpacity: 0.1,
           strokeWidth: 0
         },
@@ -289,7 +296,6 @@ export default {
 };
 
 function getGroupedTrend(groupedHistoryEntries, timestamp) {
-  
   let currentGroupedEntry =
     groupedHistoryEntries[
       moment(timestamp)
@@ -303,8 +309,6 @@ function getGroupedTrend(groupedHistoryEntries, timestamp) {
     groupedTrend += parseInt(entry.trend);
   });
 
-
-  console.log(groupedTrend);
   if (groupedTrend > 0) return "green";
   else if (groupedTrend < 0) return "red";
   else return "gray";
@@ -318,6 +322,11 @@ function getGroupedTrend(groupedHistoryEntries, timestamp) {
   height: 100vh;
   position: absolute;
   width: -webkit-fill-available;
+}
+
+.disabledComponent {
+  pointer-events: none;
+  opacity: 0.4;
 }
 
 .searchRow {
