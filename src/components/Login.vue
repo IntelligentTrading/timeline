@@ -62,12 +62,12 @@ export default {
   },
   methods: {
     ...mapActions(["getHistory", "getHistoryPrice"]),
-    auth: async function(user) {
-      let itfUserDto = await api.user(user.id);
+    auth: async function(telegramAuthRes) {
+      let itfUserDto = await api.user(telegramAuthRes.id);
       if (itfUserDto) {
-        let itfUser = new ItfUser(JSON.parse(itfUserDto));
-        if (itfUser.isPro) {
-          localStorage.setItem("user", itfUserDto);
+        let itfUser = new ItfUser(JSON.parse(itfUserDto), telegramAuthRes);
+        if (ItfUser.isPro(itfUser)) {
+          localStorage.setItem("user", JSON.stringify(itfUser));
           this.$router.push({ path: `home` });
         } else {
           this.error =
