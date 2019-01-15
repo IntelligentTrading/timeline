@@ -7,7 +7,7 @@
         :class="signalDto.trend>0 ? 'positive' : (signalDto.trend < 0 ? 'negative' : 'neutral')"
       ></i>
       <label class="signal-title">
-        {{sources[signalDto.source]}}:
+        {{signalDto.source.toUpperCase()}}:
         <span
           class="transaction-currency"
           @click="setChartSelection"
@@ -65,24 +65,16 @@ export default {
   },
   methods: {
     setChartSelection: function() {
-      console.log('clicked')
-      console.log(
-        this.signalDto.transaction_currency +
-          " " +
-          this.sources[this.signalDto.source] +
-          " " +
-          this.counterCurrencies[this.signalDto.counter_currency]
-      );
       this.$store.commit("setChartSelection", {
         ticker: this.signalDto.transaction_currency,
-        source: this.sources[this.signalDto.source],
+        source: this.signalDto.source,
         counter: this.counterCurrencies[this.signalDto.counter_currency]
       });
     },
     getFullSignalTypeDescription: function() {
       let index = this.signalTypes.indexOf(this.signalDto.signal);
       const fullSignalTypes = [
-        "AI",
+        "AI Trend Prediction",
         "Relative Strength Index",
         "ITF Proprietary",
         "SMA",
@@ -97,7 +89,7 @@ export default {
       let index = this.signalTypes.indexOf(this.signalDto.signal);
 
       const fullSignalTypes = [
-        '<i class="fas fa-robot"></i>',
+        getAISimple(this.signalDto),
         Math.round(this.signalDto.rsi_value) +
           (this.signalDto.trend > 0
             ? "<span style='font-size:12px; padding:5px'>oversold</span>"
@@ -119,11 +111,36 @@ export default {
       return index >= 0 ? fullSignalTypes[index] : this.signalDto.signal;
     },
     getAlertValidity: function() {
-      const validity = ["1h", "4h", "24h"];
-      return validity[this.signalDto.horizon];
+      const validity = [
+        { horizon: "short", validity: "1h" },
+        { horizon: "medium", validity: "4h" },
+        { horizon: "long", validity: "24h" }
+      ];
+      return validity.find(v => {
+        return v.horizon === this.signalDto.horizon;
+      }).validity;
     }
   }
 };
+
+function getAISimple(signalDto) {
+  const percentage = signalDto.probability_down
+    ? Math.round(
+        Math.max(
+          signalDto.probability_down,
+          signalDto.probability_same,
+          signalDto.probability_up
+        ) * 100
+      )+'% '
+    : "";
+
+  return (
+    percentage +
+    (signalDto.trend > 0
+      ? '<i class="fas fa-arrow-circle-up"></i>'
+          : '<i class="fas fa-arrow-circle-down"></i>')
+  );
+}
 </script>
 
 <style>

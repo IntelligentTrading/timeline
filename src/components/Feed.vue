@@ -1,7 +1,7 @@
 <template>
   <div>
     <div :class="this.loading ? 'disabledComponent' : ''">
-      <el-row v-for="signal in this.$props.signals" :key="signal.id">
+      <el-row v-for="signal in this.signals" :key="signal.id">
         <signal :signalDto="signal"/>
       </el-row>
     </div>
@@ -12,16 +12,43 @@ import api from "../store/api";
 import { mapGetters, mapState } from "vuex";
 import Signal from "./Signal";
 import ProgressLine from "./ProgressLine";
+import io from "socket.io-client";
 
 export default {
   name: "Feed",
-  props: ["signals", "loading"],
+  props: ["loading"],
   data() {
-    return {};
+    return {
+      signals: []
+    };
   },
   components: { Signal, ProgressLine },
   computed: {
     ...mapGetters(["horizons", "sources", "counterCurrencies"])
+  },
+  methods: {
+    addSignalToFeed(signalData) {
+      this.signals.push(signalData);
+    }
+  },
+  mounted() {
+    const socket = io(
+      `${process.env.ITT_NODE_SERVICES.split("//")[1].split(":")[0]}`
+    );
+
+    socket.on("connect", () => {
+      const user = JSON.parse(localStorage["user"]);
+      socket.emit("subscribe", user.telegram_chat_id);
+    });
+
+    socket.on("info", data => {
+      console.log(data);
+    });
+
+    socket.on("signal", signalData => {
+      console.log(signalData)
+      this.addSignalToFeed(signalData)
+    });
   }
 };
 </script>

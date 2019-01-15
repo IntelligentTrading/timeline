@@ -25,13 +25,13 @@
       <el-col :span="6" style="text-align:end">
         <label class="historyTitle">Selected Signals Details</label>
         <div class="historyContainer">
-          <signal-details class="history" :loading='this.isLoading' />
+          <signal-details class="history" :loading="this.isLoading"/>
         </div>
       </el-col>
       <el-col :span="6" style="text-align:end">
         <label class="historyTitle">Live Signals Feed</label>
         <div class="historyContainer">
-          <feed class="history" :signals="livefeed" :loading='this.isLoading || this.isFeedLoading'/>
+          <feed class="history"/>
         </div>
       </el-col>
     </el-row>
@@ -64,7 +64,8 @@ export default {
       "selectedSignals",
       "currentTicker",
       "currentCounterCurrency",
-      "currentExchange"
+      "currentExchange",
+      "sources"
     ]),
     ticker: {
       get: function() {
@@ -81,14 +82,14 @@ export default {
     }
   },
   asyncComputed: {
-    livefeed: async function() {
+    /*livefeed: async function() {
       this.isFeedLoading = true;
       let historyEntries = await api.getHistories();
       this.isFeedLoading = false;
       return historyEntries.filter(historyEntry => {
         return historyEntry.signal != "SMA";
       });
-    },
+    },*/
     pricesHistory: async function() {
       this.isLoading = true;
 
@@ -101,7 +102,7 @@ export default {
 
       let maxPrice = Number.NEGATIVE_INFINITY;
       let minPrice = Number.POSITIVE_INFINITY;
-      let neutralSignals = ["ANN_AnomalyPrc", "ANN_Simple"];
+      let neutralSignals = ["ANN_AnomalyPrc"];
 
       let groupedHistoryEntries = _.groupBy(
         signalsHistory.results
@@ -110,6 +111,7 @@ export default {
           })
           .map(sig => {
             sig.trend = neutralSignals.indexOf(sig.signal) >= 0 ? 0 : sig.trend;
+            sig.source = this.sources[sig.source]
             return sig;
           }),
         "timestamp"
@@ -121,6 +123,7 @@ export default {
         })
         .map(historyEntry => {
           let currentPrice = historyEntry.price / Math.pow(10, 8).toFixed(6);
+          historyEntry.horizon = ["short", "medium", "long"][historyEntry.horizon];
 
           maxPrice = currentPrice > maxPrice ? currentPrice : maxPrice;
           minPrice = currentPrice < minPrice ? currentPrice : minPrice;
