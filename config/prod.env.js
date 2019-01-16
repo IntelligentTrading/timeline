@@ -5,5 +5,6 @@ module.exports = {
   ITT_API_KEY: `"${process.env.ITT_API_KEY}"`,
   ITT_NODE_SERVICES: `"${process.env.ITT_NODE_SERVICES}"`,
   NODE_SVC_API_KEY: `"${process.env.NODE_SVC_API_KEY}"`,
-  TELEGRAM_BOT_NAME: `"${process.env.TELEGRAM_BOT_NAME.replace('@','')}"`
+  TELEGRAM_BOT_NAME: `"${process.env.TELEGRAM_BOT_NAME.replace('@','')}"`,
+  ITT_SOCKET: `"${process.env.ITT_SOCKET}"`
 }

@@ -81,7 +81,10 @@ export default {
       window.location.href = "https://intelligenttrading.org/free";
     }
   },
-  components: { vueTelegramLogin }
+  components: { vueTelegramLogin },
+  mounted(){
+    console.log(`Socket on: ${process.env.ITT_SOCKET}`)
+  }
 };
 </script>
 

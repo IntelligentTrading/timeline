@@ -32,9 +32,7 @@ export default {
     }
   },
   mounted() {
-    const socket = io(
-      `${process.env.ITT_NODE_SERVICES.split("//")[1].split(":")[0]}`
-    );
+    const socket = io(process.env.ITT_SOCKET);
 
     socket.on("connect", () => {
       const user = JSON.parse(localStorage["user"]);
@@ -46,8 +44,8 @@ export default {
     });
 
     socket.on("signal", signalData => {
-      console.log(signalData)
-      this.addSignalToFeed(signalData)
+      console.log(signalData);
+      this.addSignalToFeed(signalData);
     });
   }
 };
