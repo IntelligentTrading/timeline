@@ -1,9 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import api from "./api";
-import moment from "moment";
 import _ from "lodash";
-import chalk from "chalk";
 
 Vue.use(Vuex);
 
@@ -135,7 +133,7 @@ export default new Vuex.Store({
     },
     async loadTickers(context) {
       return api.getTickers().then(tickers => {
-        console.log(chalk.cyan("Tickers loaded..."));
+        console.log("Tickers loaded...");
         return context.commit("setTickers", JSON.parse(tickers));
       });
     }
