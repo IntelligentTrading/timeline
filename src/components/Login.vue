@@ -19,10 +19,11 @@
               <el-button class="trial" @click="goToTrialPage">Start 7 days trial</el-button>
               <el-button class="more">Learn More</el-button>
             </el-row>
-            <el-row style="text-align:left;font-size:14px">
-              <label class="welcome-text">Already on a PRO plan?</label>
+            <el-row style="text-align:left;font-size:10px;margin-bottom:40px">
+              <hr>
+              <label class="or-text">OR</label>
             </el-row>
-            <el-row style="margin-top: 10px;display: flex;">
+            <el-row style="margin: 10px 0px;display: flex;">
               <vue-telegram-login
                 mode="callback"
                 :telegram-login="this.bot"
@@ -146,5 +147,14 @@ export default {
   background: cornflowerblue;
   font-weight: 400;
   font-family: Roboto;
+}
+
+.or-text {
+  position: absolute;
+  bottom: -5px;
+  left: 45%;
+  background: white;
+  color: gray;
+  padding: 5px;
 }
 </style>
