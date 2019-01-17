@@ -16,7 +16,7 @@
               >Timeline is on private testing now. Get early access by subscribing or trying the platform for 7 days.</label>
             </el-row>
             <el-row style="margin: 50px 0;display: flex;">
-              <el-button class="trial" @click="goToTrialPage">Try 7 days</el-button>
+              <el-button class="trial" @click="goToTrialPage">Start 7 days trial</el-button>
               <el-button class="more">Learn More</el-button>
             </el-row>
             <el-row style="text-align:left;font-size:14px">
@@ -32,8 +32,14 @@
                 :userpic="false"
               />
             </el-row>
-            <el-row>
-              <label style="font-size: 11px;color: red;" v-show="error !== ''">{{error}}</label>
+            <el-row style="text-align:left">
+              <label style="font-size:10px">
+                Not a member?
+                <a
+                  href="http://t.me/intelligenttradingbot"
+                  target="_blank"
+                >Create your account.</a>
+              </label>
             </el-row>
           </el-card>
         </div>
@@ -70,11 +76,16 @@ export default {
           localStorage.setItem("user", JSON.stringify(itfUser));
           this.$router.push({ path: `home` });
         } else {
-          this.error =
-            "Sorry, this version is in BETA and reserved to PRO users only.";
+          this.$message.error(
+            "Sorry, this version is in BETA and reserved to PRO users only."
+          );
         }
       } else {
-        this.error = "User not found!";
+        this.$message.error({
+          message:
+            "Sorry, user not found. Create an account and start chatting with the ITF bot before using the timeline.",
+          duration: 10000
+        });
       }
     },
     goToTrialPage: () => {
@@ -82,8 +93,8 @@ export default {
     }
   },
   components: { vueTelegramLogin },
-  mounted(){
-    console.log(`Socket on: ${process.env.ITT_SOCKET}`)
+  mounted() {
+    console.log(`Socket on: ${process.env.ITT_SOCKET}`);
   }
 };
 </script>
@@ -118,6 +129,13 @@ export default {
   background: transparent;
   color: cornflowerblue !important;
   border: cornflowerblue solid 1px !important;
+}
+
+.error {
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-weight: 500;
+  color: red;
 }
 
 .tgme_widget_login.large button.tgme_widget_login_button {

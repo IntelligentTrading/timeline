@@ -9,7 +9,7 @@ const sources = ["POLONIEX", "BITTREX", "BINANCE"];
 const counterCurrencies = ["BTC", "ETH", "USDT", "XMR"];
 
 export default {
-  getTickers: async () =>{
+  getTickers: async () => {
     return rp(`${svcApiUrl}/tickers/transaction_currencies`, {
       headers: { "NSVC-API-KEY": svcApiKey }
     });
@@ -108,6 +108,8 @@ export default {
   user: async telegram_chat_id => {
     return rp(`${svcApiUrl}/users/${telegram_chat_id}`, {
       headers: { "NSVC-API-KEY": svcApiKey }
+    }).catch(err => {
+      return null;
     });
   }
 };
