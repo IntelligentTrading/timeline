@@ -6,26 +6,34 @@
         style="height:50px;margin:20px"
       >
     </el-row>
-    <el-row :gutter='24'>
-      <el-col :span='12' :offset="6">
-      <el-input
-        class="searchBar"
+    <el-row :gutter="24">
+      <el-autocomplete
+        class="inline-input searchBar"
         v-model="ticker"
+        :fetch-suggestions="querySearch"
         placeholder="Ticker name or symbol"
+        @select="handleTickerSelection"
         @keyup.enter.native="searchTicker(ticker)"
-      ></el-input>
-      </el-col>
-      <el-col :span='4' style='display:flex'>
-      <el-button
-        type="primary"
-        :disabled="ticker == '' || ticker == null"
-        class="searchButton"
-        @click="searchTicker(ticker)"
-      >Search</el-button>
-      </el-col>
+      >
+        <template slot-scope="{ item }">
+          <span class="tickerName">{{ item.name }}</span>
+          <span class="tickerSymbol">{{ item.symbol }}</span>
+        </template>
+      </el-autocomplete>
     </el-row>
-    <el-row style='margin:10px'>
-      <label style=" color: currentColor;font-size: x-small;font-weight:400;margin-left: -42%;">Trending coins</label>
+    <el-row style="margin:10px">
+      <label
+        style=" color: currentColor;font-size: x-small;font-weight:400;margin-left: -42%;"
+      >Trending coins</label>
+      <el-tooltip placement="bottom" effect="light">
+        <div
+          slot="content"
+        >The trending coins are the coins with the highest number of market events (signals) in the past 24h.
+          <br>
+          Although this information doesn't suggest a buy/sell action, it underlines possible opportunities.
+        </div>
+        <i class="far fa-question-circle" style="font-size:x-small"></i>
+      </el-tooltip>
     </el-row>
     <el-row>
       <el-button
@@ -44,6 +52,7 @@
 import moment from "moment";
 import { mapActions, mapState, mapGetters } from "vuex";
 import _ from "lodash";
+import api from "../store/api";
 
 export default {
   name: "Home",
@@ -53,15 +62,36 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["topCoins"])
+    ...mapGetters(["topCoins", "tickers"])
   },
   methods: {
-    searchTicker: function(nameOrSymbol) {
-      if (nameOrSymbol == "" || nameOrSymbol == null) return;
-      else {
-        this.$store.commit("setCurrentTicker", nameOrSymbol);
+    handleTickerSelection: function(tickerObject) {
+      this.searchTicker(tickerObject.symbol.toUpperCase());
+    },
+    searchTicker: function(symbol) {
+      if (symbol == "" || symbol == null) return;
+      if (
+        !this.tickers.some(t => {
+          return t.symbol.toUpperCase() === symbol.toUpperCase();
+        })
+      ) {
+        return;
+      } else {
+        this.$store.commit("setCurrentTicker", symbol);
         this.$router.push({ path: `overview` });
       }
+    },
+    querySearch: function(filter, cb) {
+      const filteredTickers = filter
+        ? this.tickers.filter(t => {
+            return (
+              t.symbol.toLowerCase().startsWith(filter.toLowerCase()) ||
+              t.name.toLowerCase().startsWith(filter.toLowerCase())
+            );
+          })
+        : this.tickers;
+
+      cb(filteredTickers);
     }
   }
 };
@@ -79,4 +109,22 @@ export default {
   width: -webkit-fill-available;
 }
 
+.el-autocomplete {
+  width: 60%;
+}
+
+.searchBar {
+  width: 70%;
+}
+
+.tickerName {
+  font-family: Rubik;
+  font-size: 100;
+}
+.tickerSymbol {
+  font-family: Roboto;
+  font-size: 10px;
+  margin: 5px;
+  font-weight: 400;
+}
 </style>

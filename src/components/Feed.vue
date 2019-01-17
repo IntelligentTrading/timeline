@@ -1,8 +1,12 @@
 <template>
   <div>
     <div :class="this.loading ? 'disabledComponent' : ''">
+      <label
+        v-show="!this.signals || this.signals.length <= 0"
+        style="font-size:9px"
+      >{{this.feedSocketOpen ? 'Signals will start coming soon.' : 'Connecting to live feed...'}}</label>
       <el-row v-for="signal in this.signals" :key="signal.id">
-        <signal :signalDto="signal"/>
+        <signal :clickEnabled="true" :signalDto="signal"/>
       </el-row>
     </div>
   </div>
@@ -19,7 +23,8 @@ export default {
   props: ["loading"],
   data() {
     return {
-      signals: []
+      signals: [],
+      feedSocketOpen: false
     };
   },
   components: { Signal, ProgressLine },
@@ -34,6 +39,10 @@ export default {
   mounted() {
     const socket = io(process.env.ITT_SOCKET);
 
+    setInterval(() => {
+      this.feedSocketOpen = false;
+    }, 60000);
+
     socket.on("connect", () => {
       const user = JSON.parse(localStorage["user"]);
       socket.emit("subscribe", user.telegram_chat_id);
@@ -41,10 +50,15 @@ export default {
 
     socket.on("info", data => {
       console.log(data);
+      this.feedSocketOpen = true;
+    });
+
+    socket.on("heartbeat", hb => {
+      console.log("Received heartbeat!");
+      this.feedSocketOpen = true;
     });
 
     socket.on("signal", signalData => {
-      console.log(signalData);
       this.addSignalToFeed(signalData);
     });
   }

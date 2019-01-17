@@ -6,7 +6,19 @@
         style="height:40px; margin:20px"
         @click="goHome"
       >
-      <el-input class="searchBarExt" v-model="ticker" placeholder="Ticker name or symbol"></el-input>
+      <el-autocomplete
+        class="inline-input searchBarExt"
+        v-model="ticker"
+        :fetch-suggestions="querySearch"
+        placeholder="Type a ticker name or symbol..."
+        @select="handleTickerSelection"
+        @keyup.enter.native="searchTicker(ticker)"
+      >
+        <template slot-scope="{ item }">
+          <span class="tickerName">{{ item.name }}</span>
+          <span class="tickerSymbol">{{ item.symbol }}</span>
+        </template>
+      </el-autocomplete>
       <div class="inner-message">
         <span class="error-message negative">{{this.errorMessage}}</span>
         <i v-show="this.errorMessage !== ''" class="fas fa-exclamation-triangle negative"></i>
@@ -65,7 +77,8 @@ export default {
       "currentTicker",
       "currentCounterCurrency",
       "currentExchange",
-      "sources"
+      "sources",
+      "tickers"
     ]),
     ticker: {
       get: function() {
@@ -77,7 +90,7 @@ export default {
         return this.currentTicker.toUpperCase();
       },
       set: function(newTicker) {
-        this.$store.commit("setCurrentTicker", newTicker);
+        this.searchTicker(newTicker);
       }
     }
   },
@@ -111,7 +124,7 @@ export default {
           })
           .map(sig => {
             sig.trend = neutralSignals.indexOf(sig.signal) >= 0 ? 0 : sig.trend;
-            sig.source = this.sources[sig.source]
+            sig.source = this.sources[sig.source];
             return sig;
           }),
         "timestamp"
@@ -123,7 +136,9 @@ export default {
         })
         .map(historyEntry => {
           let currentPrice = historyEntry.price / Math.pow(10, 8).toFixed(6);
-          historyEntry.horizon = ["short", "medium", "long"][historyEntry.horizon];
+          historyEntry.horizon = ["short", "medium", "long"][
+            historyEntry.horizon
+          ];
 
           maxPrice = currentPrice > maxPrice ? currentPrice : maxPrice;
           minPrice = currentPrice < minPrice ? currentPrice : minPrice;
@@ -293,6 +308,34 @@ export default {
   methods: {
     goHome: function() {
       this.$router.push({ path: `../home` });
+    },
+    handleTickerSelection: function(tickerObject) {
+      this.searchTicker(tickerObject.symbol.toUpperCase());
+    },
+    searchTicker: function(symbol) {
+      if (symbol == "" || symbol == null) return;
+      if (
+        !this.tickers.some(t => {
+          return t.symbol.toUpperCase() === symbol.toUpperCase();
+        })
+      )
+        return;
+      else {
+        this.$store.commit("setCurrentTicker", symbol);
+        this.$router.push({ path: `overview` });
+      }
+    },
+    querySearch: function(filter, cb) {
+      const filteredTickers = filter
+        ? this.tickers.filter(t => {
+            return (
+              t.symbol.toLowerCase().startsWith(filter.toLowerCase()) ||
+              t.name.toLowerCase().startsWith(filter.toLowerCase())
+            );
+          })
+        : this.tickers;
+
+      cb(filteredTickers);
     }
   },
   components: { PriceLine, SignalDetails, Feed }
@@ -350,14 +393,15 @@ function getGroupedTrend(groupedHistoryEntries, timestamp) {
 .historyTitle {
   text-align: right;
   font-size: 10px;
-  padding: 10px;
+  padding: 15px;
   font-family: "Rubik";
-  color: cornflowerblue;
+  color: #504b4b;
+  font-weight: 500;
 }
 
 .historyContainer {
   height: 550px;
-  overflow-y: scroll;
+  overflow-y: auto;
   border-bottom: #dcdfe65e solid 1px;
 }
 
@@ -368,5 +412,16 @@ function getGroupedTrend(groupedHistoryEntries, timestamp) {
 
 .error-message {
   font-size: 10px;
+}
+
+.tickerName {
+  font-family: Rubik;
+  font-size: 100;
+}
+.tickerSymbol {
+  font-family: Roboto;
+  font-size: 10px;
+  margin: 5px;
+  font-weight: 400;
 }
 </style>

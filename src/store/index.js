@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import api from "./api";
 import moment from "moment";
 import _ from "lodash";
+import chalk from "chalk";
 
 Vue.use(Vuex);
 
@@ -25,6 +26,7 @@ export default new Vuex.Store({
     ],
     telegram_chat_id: "",
     topCoins: {},
+    tickers: [],
     selectedSignals: [],
     currentTicker: null,
     currentCounterCurrency: "BTC",
@@ -52,6 +54,9 @@ export default new Vuex.Store({
     },
     setTopCoins(state, coins) {
       state.topCoins = coins;
+    },
+    setTickers(state, tickers) {
+      state.tickers = tickers;
     },
     setSelectedSignals(state, signals) {
       state.selectedSignals = signals;
@@ -117,12 +122,21 @@ export default new Vuex.Store({
     },
     topCoins(state) {
       return state.topCoins;
+    },
+    tickers(state) {
+      return state.tickers;
     }
   },
   actions: {
     async loadTopCoins(context) {
       return api.topCoins().then(coins => {
         return context.commit("setTopCoins", coins);
+      });
+    },
+    async loadTickers(context) {
+      return api.getTickers().then(tickers => {
+        console.log(chalk.cyan("Tickers loaded..."));
+        return context.commit("setTickers", JSON.parse(tickers));
       });
     }
   }

@@ -1,14 +1,15 @@
 <template>
-  <div id="app" >
-        <router-view/>
+  <div id="app">
+    <router-view/>
   </div>
 </template>
 
 <script>
 export default {
   name: "App",
-  mounted(){
-    this.$store.dispatch('loadTopCoins')
+  mounted() {
+    this.$store.dispatch("loadTopCoins");
+    this.$store.dispatch("loadTickers");
   }
 };
 </script>

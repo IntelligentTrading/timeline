@@ -5,7 +5,7 @@
       v-show="!selectedSignals || selectedSignals.length <= 0"
     >Click on a signal (circle) or select an area to get insights.</label>
     <el-row v-for="signal in selectedSignals" :key="signal.id">
-      <signal :signalDto="signal"/>
+      <signal :clickEnabled='false' :signalDto="signal"/>
     </el-row>
   </div>
 </template>

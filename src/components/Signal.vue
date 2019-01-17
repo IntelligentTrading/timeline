@@ -9,7 +9,7 @@
       <label class="signal-title">
         {{signalDto.source.toUpperCase()}}:
         <span
-          class="transaction-currency"
+          :class="this.$props.clickEnabled ? 'transaction-currency':''"
           @click="setChartSelection"
         >{{signalDto.transaction_currency}}</span>
         /{{counterCurrencies[signalDto.counter_currency]}}
@@ -50,7 +50,7 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "Signal",
-  props: ["signalDto"],
+  props: ["signalDto", "clickEnabled"],
   data() {
     return {};
   },
@@ -65,6 +65,7 @@ export default {
   },
   methods: {
     setChartSelection: function() {
+      if (!this.$props.clickEnabled) return;
       this.$store.commit("setChartSelection", {
         ticker: this.signalDto.transaction_currency,
         source: this.signalDto.source,
@@ -131,14 +132,14 @@ function getAISimple(signalDto) {
           signalDto.probability_same,
           signalDto.probability_up
         ) * 100
-      )+'% '
+      ) + "% "
     : "";
 
   return (
     percentage +
     (signalDto.trend > 0
       ? '<i class="fas fa-arrow-circle-up"></i>'
-          : '<i class="fas fa-arrow-circle-down"></i>')
+      : '<i class="fas fa-arrow-circle-down"></i>')
   );
 }
 </script>

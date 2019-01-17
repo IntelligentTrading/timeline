@@ -9,6 +9,11 @@ const sources = ["POLONIEX", "BITTREX", "BINANCE"];
 const counterCurrencies = ["BTC", "ETH", "USDT", "XMR"];
 
 export default {
+  getTickers: async () =>{
+    return rp(`${svcApiUrl}/tickers/transaction_currencies`, {
+      headers: { "NSVC-API-KEY": svcApiKey }
+    });
+  },
   getHistory: async (ticker, horizon, source, counterCurrency) => {
     let filters = "";
     filters += horizon != null ? `&horizon=${horizons.indexOf(horizon)}` : "";
