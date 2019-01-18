@@ -73,12 +73,12 @@ export default {
       let itfUserDto = await api.user(telegramAuthRes.id);
       if (itfUserDto) {
         let itfUser = new ItfUser(JSON.parse(itfUserDto), telegramAuthRes);
-        if (ItfUser.isPro(itfUser)) {
+        if (itfUser.eula) {
           localStorage.setItem("user", JSON.stringify(itfUser));
           this.$router.push({ path: `home` });
         } else {
           this.$message.error(
-            "Sorry, this version is in BETA and reserved to PRO users only."
+            "Sorry, you must accept our EULA before using any ITF product."
           );
         }
       } else {
